@@ -11,11 +11,15 @@ export default function MethodSelector({ onChange, onValidityChange }) {
     onValidityChange(!!method);
   }, [method, onValidityChange]);
 
-  const handleMethodChange = useCallback((e) => {
-    const selectedMethod = e.target.value;
-    setMethod(selectedMethod);
-    onChange(selectedMethod);
-  }, [onChange]);
+  const handleMethodChange = useCallback(
+    (e) => {
+      const selectedMethod = e.target.value;
+      onChange(selectedMethod);
+      setMethod(selectedMethod);
+
+    },
+    [method, onChange]
+  );
 
   return (
     <div className="relative w-full h-full">

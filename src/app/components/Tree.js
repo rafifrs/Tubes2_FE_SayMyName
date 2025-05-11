@@ -1,10 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import Tree from "react-d3-tree";
-import { parseRawDFSResult, convertDFSResultToTree } from "./../helper/converter";
+import { convertResultToTree } from "./../helper/converter";
 
-const MyTree = ({ dfsResult }) => {
-  const dfsResultReversed = dfsResult.slice().reverse(); // hindari mutasi state
-  const treeData = convertDFSResultToTree(dfsResultReversed);
+const MyTree = ({ result } ) => {
+  // console.log('ini result di MyTree', result);
+  console.log("MyTree props:", result);
+  let resultReversed = result.slice().reverse();
+
+  const treeData = convertResultToTree(resultReversed);
   const treeContainer = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -55,7 +58,7 @@ const MyTree = ({ dfsResult }) => {
       },
     },
     link: {
-      stroke: "#f9a61f",
+      stroke: "#c426a4",
       strokeWidth: 2,
     },
   };
@@ -66,7 +69,7 @@ const MyTree = ({ dfsResult }) => {
       <circle 
         r={20} 
         fill="#c426a4" 
-        stroke="#f9a61f"
+        stroke="#c426a4"
         strokeWidth={2}
       />
       <text

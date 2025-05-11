@@ -8,7 +8,7 @@ export default function ElementSearch({ onElementSelect, onValidityChange }) {
   const [filteredElements, setFilteredElements] = useState([]);
   const dropdownRef = useRef(null);
 
-  const alljson = require('../../../elements.json');
+  const alljson = require('../../../elements_filtered.json');
   const elements = alljson.map(element => element.name);
 
   // Filter elements berdasarkan searhh query
@@ -67,9 +67,9 @@ export default function ElementSearch({ onElementSelect, onValidityChange }) {
           value={searchQuery}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          className={`w-full h-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f9a61f] ${
+          className={`w-full h-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c426a4] ${
             selectedElement 
-              ? 'text-white bg-[#390028] border-2 border-[#f9a61f]' 
+              ? 'text-white bg-[#390028] border-2 border-[#c426a4]' 
               : 'text-white bg-[#390028] border-[#c426a4] bg-opacity-50'
           }`}
         />
@@ -89,7 +89,7 @@ export default function ElementSearch({ onElementSelect, onValidityChange }) {
       </div>
       
       {isDropdownOpen && filteredElements.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-[#390028] border-2 border-[#f9a61f] rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 w-full mt-1 bg-[#390028] border-2 border-[#c426a4] rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredElements.map((element) => (
             <div
               key={element}

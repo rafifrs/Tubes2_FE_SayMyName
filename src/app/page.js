@@ -9,10 +9,13 @@ import GoButton from './components/GoButton';
 import ResultsDisplay from './components/ResultDisplay';
 import ElementSearch from './components/ElementSearch';
 import { useCallback } from 'react';
-import { fetchBFSPaths, fetchDFSPaths } from './lib/api';
+import { fetchBFSPaths, fetchDFSPaths, fetchDFSMultiplePaths } from './lib/api';
+import TabTreeContainer from './components/TabTreeContainer';
 import MyTree from './components/Tree';
 
 export default function Home() {
+  const [hasSearched, setHasSearched] = useState(false);
+
   // State for search parameters
   const [searchParams, setSearchParams] = useState({
     method: '',
@@ -43,17 +46,21 @@ export default function Home() {
   // Check if form is valid
   const isFormValid = validity.targetElement && validity.method && validity.mode && validity.count;
 
-  const handleSearchUsingAPI  = async (method, count) => {
+  const handleSearchUsingAPI  = async (method, count, mode) => {
     console.log('KEPANGGGIL GA SI');
     setIsLoading(true);
     setError(null);
     console.log('Searching for recipes with params:', searchParams);
-    if (method === 'bfs' && count === 1) {
+    console.log('Method:', method);
+    console.log('Count:', count);
+    console.log('Mode:', mode);
+    if (method === 'bfs') {
       console.log('BFS called');
       try {
         const response = await fetchBFSPaths(searchParams.targetElement, searchParams.count);
-        console.log('API responseuk:', response?.Results?.[0]?.Path || []);
+        // console.log('API responseuk:', response?.Results?.[0]?.Path || []);
         setResults(response);
+        setHasSearched(true); 
       } catch (err) {
         console.error('Error during search:', err);
         setError('Search failed. Please try again.');
@@ -61,19 +68,37 @@ export default function Home() {
         setIsLoading(false);
       }
     }
-    else if (method === 'dfs' && count === 1) {
-      console.log('DFS called');
-      try {
-        const response = await fetchDFSPaths(searchParams.targetElement, searchParams.count);
-        console.log('API responseuk:', response?.Path || []);
-        setResults(response);
-      } catch (err) {
-        console.error('Error during search:', err);
-        setError('Search failed. Please try again.');
-      } finally {
-        setIsLoading(false);
+    else if (method === 'dfs') {
+      if (count === 1 || mode === 'single' || (mode === 'multiple' && count === 1)) {
+        console.log('DFS single called');
+        try {
+          const response = await fetchDFSPaths(searchParams.targetElement, searchParams.count);
+          console.log('API responseuk:', response?.Path || []);
+          setResults(response);
+          setHasSearched(true); 
+        } catch (err) {
+          console.error('Error during search:', err);
+          setError('Search failed. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      else if (count > 1 || mode === 'multiple') {
+        console.log('DFS multiple called');
+        try {
+          const response = await fetchDFSMultiplePaths(searchParams.targetElement, searchParams.count);
+          console.log('API responseuk:', response || []);
+          setResults(response);
+          setHasSearched(true); 
+        } catch (err) {
+          console.error('Error during search:', err);
+          setError('Search failed. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
+
   }
 
   // Update form parameters
@@ -90,7 +115,7 @@ export default function Home() {
   }, []);
 
   const handleCountChange = useCallback((count) => {
-    setSearchParams((prev) => ({ ...prev, count }));
+    setSearchParams((prev) => ({ ...prev, count: Number(count) }));
   }, []);
 
   // Update validity states
@@ -109,6 +134,12 @@ export default function Home() {
   const handleCountValidityChange = useCallback((isValid) => {
     setValidity((prev) => ({ ...prev, count: isValid }));
   }, []);
+
+  useEffect(() => {
+    setHasSearched(false);
+    setResults(null); // Optional: clear previous results
+  }, [searchParams.method, searchParams.count, searchParams.targetElement]);
+  
 
   return (
     <div className="min-h-screen bg-[#1b001c] text-white">
@@ -150,19 +181,29 @@ export default function Home() {
           </div>
           <div className="col-span-1 h-16">
           <GoButton 
-            onClick={() => handleSearchUsingAPI(searchParams.method, searchParams.count)} // Gunakan fungsi anonim untuk memanggil handleSearchUsingAPI
+            onClick={() => handleSearchUsingAPI(searchParams.method, searchParams.count, searchParams.mode)} 
             isEnabled={isFormValid}
             isLoading={isLoading}
           />
           </div>
 
-          {/* Row 2-3: Results */}
+          {/* Row 2-3: Results dengan Tabs */}
           <div className="col-span-8 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
-            {results && (
-            <MyTree dfsResult={results?.Results?.[0]?.Path || []} />)}
+            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count === 1 && (
+              <MyTree result={results?.Results?.[0]?.Path || []} />
+            )}
+            {hasSearched && results && searchParams.method === 'dfs' && searchParams.count === 1 && (
+              <MyTree result={results?.Path || []}/>
+            )}
+            {hasSearched && results && searchParams.method === 'dfs' && searchParams.count > 1 && (
+              <TabTreeContainer trees={results} method={searchParams.method} />
+            )}
+            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count > 1 && (
+              <TabTreeContainer trees={results} method={searchParams.method} />
+            )}
           </div>
 
-          <div className="col-span-4 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#f9a61f] h-[calc(100vh-230px)]">
+          <div className="col-span-4 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
           {results && (
             <ResultsDisplay 
               results={results}

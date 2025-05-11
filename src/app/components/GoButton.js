@@ -7,7 +7,7 @@ export default function GoButton({ onClick, isEnabled, isLoading }) {
       disabled={!isEnabled || isLoading}
       className={`w-full h-full flex items-center justify-center rounded-md transition-all duration-200 focus:outline-none
         ${isEnabled && !isLoading
-          ? 'bg-[#c426a4] hover:bg-[#f9a61f] text-white cursor-pointer'
+          ? 'bg-[#c426a4] hover:bg-[#c426a4] text-white cursor-pointer'
           : 'bg-[#390028] text-purple-300 bg-opacity-50 cursor-not-allowed'
         }
       `}

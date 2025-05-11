@@ -24,7 +24,7 @@ export default function RecipeCountInput({ onChange, onValidityChange, isEnabled
       value={count}
       disabled={!isEnabled}
       onChange={handleInputChange}
-      className={`w-full h-full px-4 py-2 bg-opacity-50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f9a61f] ${
+      className={`w-full h-full px-4 py-2 bg-opacity-50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c426a4] ${
         isValid ? 'text-white bg-[#390028]' : 'text-white bg-[#390028] text-xs'
         } ${isEnabled ? '' : 'cursor-not-allowed text-purple-300 bg-opacity-50'
       }`}

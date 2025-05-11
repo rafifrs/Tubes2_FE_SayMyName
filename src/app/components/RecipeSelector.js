@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 
 export default function RecipeModeSelector({ onChange, onValidityChange, onMultipleSelected }) {
   const [mode, setMode] = useState('');
-  const modes = ['Shortest Recipe', 'Multiple Recipe'];
+  const modes = ['Find Recipe', 'Multiple Recipe'];
 
   useEffect(() => {
     onValidityChange(!!mode);
@@ -28,12 +28,12 @@ export default function RecipeModeSelector({ onChange, onValidityChange, onMulti
       <select
         value={mode}
         onChange={handleModeChange}
-        className={`w-full h-full px-4 py-2 bg-opacity-50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f9a61f] appearance-none cursor-pointer ${
+        className={`w-full h-full px-4 py-2 bg-opacity-50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c426a4] appearance-none cursor-pointer ${
           mode ? 'text-white bg-[#390028]' : 'text-purple-300 bg-[#390028]'
         }`}
       >
         <option value="" disabled>Recipe Type</option>
-        <option value="shortest">Shortest Recipe</option>
+        <option value="shortest">Find Recipe</option>
         <option value="multiple">Multiple Recipe</option>
       </select>
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">

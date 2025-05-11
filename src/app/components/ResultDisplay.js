@@ -64,13 +64,6 @@ export default function ResultsDisplay({ results, isLoading }) {
             </div>
           </div>
         )}
-
-        <div className="bg-[#390028] bg-opacity-50 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-purple-100 mb-2">Target Element</h3>
-          <div className="bg-[#260026] bg-opacity-50 p-3 rounded-lg">
-            <p className="text-white font-medium">{results.targetElement}</p>
-          </div>
-        </div>
       </div>
     </div>
   );
