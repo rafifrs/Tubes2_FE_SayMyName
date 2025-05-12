@@ -1,103 +1,226 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import MethodSelector from './components/MethodSelector';
+import RecipeModeSelector from './components/RecipeSelector';
+import RecipeCountInput from './components/RecipeCountInput';
+import GoButton from './components/GoButton';
+import ResultsDisplay from './components/ResultDisplay';
+import ElementSearch from './components/ElementSearch';
+import { useCallback } from 'react';
+import { fetchBFSPaths, fetchDFSPaths, fetchDFSMultiplePaths } from './lib/api';
+import TabTreeContainer from './components/TabTreeContainer';
+import MyTree from './components/Tree';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [hasSearched, setHasSearched] = useState(false);
+  const [executionTimeDalamMs, setExecutionTimeDalamMs] = useState(0);
+  const [nodesVisited, setNodesVisited] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [showRecipeCount, setShowRecipeCount] = useState(false);
+  const [results, setResults] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [searchParams, setSearchParams] = useState({
+    method: '',
+    mode: '',
+    count: 1,
+    targetElement: ''
+  });
+
+  const [validity, setValidity] = useState({
+    targetElement: false,
+    method: false,
+    mode: false,
+    count: true,
+  });
+
+  const [error, setError] = useState(null);
+  const isFormValid = validity.targetElement && validity.method && validity.mode && validity.count;
+
+  const handleSearchUsingAPI  = async (method, count, mode) => {
+    setIsLoading(true);
+    setError(null);
+
+    const startTime = performance.now();
+
+    if (method === 'bfs') {
+      try {
+        const response = await fetchBFSPaths(searchParams.targetElement, searchParams.count);
+        const endTime = performance.now();
+        let visited = 0;
+        for (let i = 0; i < response.Results.length; i++) {
+          visited += response.Results[i].NodesVisited || 0;
+        }
+        setNodesVisited(visited);
+        setExecutionTimeDalamMs(endTime - startTime);
+        setResults(response);
+        setHasSearched(true); 
+      } catch (err) {
+        console.error('Error during search:', err);
+        setError('Search failed. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    else if (method === 'dfs') {
+      if (count === 1 || mode === 'single' || (mode === 'multiple' && count === 1)) {
+        try {
+          const response = await fetchDFSPaths(searchParams.targetElement, searchParams.count);
+          const endTime = performance.now();
+          setExecutionTimeDalamMs(endTime - startTime);
+          let visited = 0;
+          visited += response.NodesVisited || 0;
+          setNodesVisited(visited);
+          setResults(response);
+          setHasSearched(true); 
+        } catch (err) {
+          console.error('Error during search:', err);
+          setError('Search failed. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      else if (count > 1 || mode === 'multiple') {
+        try {
+          const response = await fetchDFSMultiplePaths(searchParams.targetElement, searchParams.count);
+          const endTime = performance.now();
+          setExecutionTimeDalamMs(endTime - startTime);
+          let visited = 0;
+          for (let i = 0; i < response.length; i++) {
+            visited += response[i].NodesVisited || 0;
+          }
+          setNodesVisited(visited);
+          setResults(response);
+          setHasSearched(true); 
+        } catch (err) {
+          console.error('Error during search:', err);
+          setError('Search failed. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+
+  }
+
+  const handleTargetElementChange = useCallback((element) => {
+    setSearchParams((prev) => ({ ...prev, targetElement: element }));
+  }, []);
+
+  const handleMethodChange = useCallback((method) => {
+    setSearchParams((prev) => ({ ...prev, method }));
+  }, []);
+
+  const handleModeChange = useCallback((mode) => {
+    setSearchParams((prev) => ({
+      ...prev,
+      mode,
+      count: mode === 'single' ? 1 : prev.count,
+    }));
+    if (mode === 'single') {
+      setValidity((prev) => ({ ...prev, count: true }));
+    }
+  }, []);  
+
+  const handleCountChange = useCallback((count) => {
+    setSearchParams((prev) => ({ ...prev, count: Number(count) }));
+  }, []);
+
+  const handleTargetElementValidityChange = useCallback((isValid) => {
+    setValidity((prev) => ({ ...prev, targetElement: isValid }));
+  }, []);
+
+  const handleMethodValidityChange = useCallback((isValid) => {
+    setValidity((prev) => ({ ...prev, method: isValid }));
+  }, []);
+
+  const handleModeValidityChange = useCallback((isValid) => {
+    setValidity((prev) => ({ ...prev, mode: isValid }));
+  }, []);
+
+  const handleCountValidityChange = useCallback((isValid) => {
+    setValidity((prev) => ({ ...prev, count: isValid }));
+  }, []);
+
+  useEffect(() => {
+    setHasSearched(false);
+    setResults(null);
+  }, [searchParams.method, searchParams.count, searchParams.targetElement]);
+  
+  return (
+    <div className="min-h-screen bg-[#1b001c] text-white">
+      <div className="mx-auto container px-4 py-8">
+
+        <div className="flex items-center mb-8 justify-center text-center">
+          <img src="/logo.webp" alt="Logo" className="h-12 mr-4" />
+          <h1 className="text-2xl font-bold">Little Alchemy 2 Solver</h1>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-3 h-16">
+            <ElementSearch 
+              onElementSelect={handleTargetElementChange}
+              onValidityChange={handleTargetElementValidityChange}
+            />
+          </div>
+          <div className="col-span-3 h-16">
+            <MethodSelector 
+              onChange={handleMethodChange}
+              onValidityChange={handleMethodValidityChange}
+            />
+          </div>
+          <div className="col-span-3 h-16">
+            <RecipeModeSelector 
+              onChange={handleModeChange}
+              onValidityChange={handleModeValidityChange}
+              onMultipleSelected={setShowRecipeCount}
+              onCountChange={handleCountChange} 
+            />
+          </div>
+          <div className="col-span-2 h-16">
+            <RecipeCountInput
+              onChange={handleCountChange}
+              onValidityChange={handleCountValidityChange}
+              isEnabled={showRecipeCount}
+            />
+          </div>
+          <div className="col-span-1 h-16">
+          <GoButton 
+            onClick={() => handleSearchUsingAPI(searchParams.method, searchParams.count, searchParams.mode)} 
+            isEnabled={isFormValid}
+            isLoading={isLoading}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </div>
+
+          <div className="col-span-8 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
+            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count === 1 && (
+              <MyTree result={results?.Results?.[0]?.Path || []} />
+            )}
+            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count > 1 && (
+              <TabTreeContainer trees={results} method={searchParams.method} />
+            )}
+            {hasSearched && results && searchParams.method === 'dfs' && searchParams.count === 1 && (
+              <MyTree result={results?.Path || []}/>
+            )}
+            {hasSearched && results && searchParams.method === 'dfs' && searchParams.count > 1 && (
+              <TabTreeContainer trees={results} method={searchParams.method} />
+            )}
+          </div>
+
+          <div className="col-span-4 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
+          {hasSearched && results && (
+            <ResultsDisplay 
+              results={results}
+              isLoading={isLoading}
+              method = {searchParams.method}
+              executionTime={executionTimeDalamMs}
+              nodesVisited={nodesVisited}
+            />
+          )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
