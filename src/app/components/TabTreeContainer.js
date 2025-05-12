@@ -37,7 +37,7 @@ const TabTreeContainer = ({ trees, method }) => {
         ))}
       </div>
 
-      {/* Tab Content */}
+      {/* Gambar tree */}
       <div className="flex-1 overflow-hidden">
         <div style={{ width: "100%", height: "100%" }}>
           <MyTree result={treeList[activeTab]?.Path || []} />

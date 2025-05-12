@@ -11,8 +11,6 @@ function convertResultToTree(ResultReversed) {
       }
       return nameToNode.get(name);
     }
-
-    // console.log('ini ResultReversed', ResultReversed);
   
     // Bangun node dan relasi parent-child
     for (const step of ResultReversed) {
@@ -31,11 +29,9 @@ function convertResultToTree(ResultReversed) {
       }
     }
   
-    // Cari node yang tidak pernah menjadi child → itu adalah root (misalnya "Picnic")
     const allNames = Array.from(nameToNode.keys());
     const rootNames = allNames.filter(name => !isChild.has(name));
   
-    // Ambil root pertama saja untuk react-d3-tree
     const root = getNode(rootNames[0]);
     return [root];
   }

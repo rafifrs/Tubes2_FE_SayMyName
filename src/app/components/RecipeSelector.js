@@ -1,21 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-export default function RecipeModeSelector({ onChange, onValidityChange, onMultipleSelected }) {
+export default function RecipeModeSelector({ onChange, onValidityChange, onMultipleSelected, onCountChange }) {
   const [mode, setMode] = useState('');
-  const modes = ['Find Recipe', 'Multiple Recipe'];
+  const [countInput, setCountInput] = useState(1);
 
   useEffect(() => {
     onValidityChange(!!mode);
-    
     if (mode === 'multiple') {
       onMultipleSelected(true);
     } else {
       onMultipleSelected(false);
+      setCountInput(1); 
     }
   }, [mode, onValidityChange, onMultipleSelected]);
+
+  useEffect(() => {
+    if (onCountChange) {
+      onCountChange(countInput);
+    }
+  }, [countInput, onCountChange]);
 
   const handleModeChange = useCallback((e) => {
     const selectedMode = e.target.value;
@@ -33,7 +38,7 @@ export default function RecipeModeSelector({ onChange, onValidityChange, onMulti
         }`}
       >
         <option value="" disabled>Recipe Type</option>
-        <option value="shortest">Find Recipe</option>
+        <option value="single">Find Recipe</option>
         <option value="multiple">Multiple Recipe</option>
       </select>
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">

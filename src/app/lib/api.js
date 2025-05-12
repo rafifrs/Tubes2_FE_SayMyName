@@ -3,13 +3,12 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 /**
- * Fetch BFS pathfinding results
- * @param {string} targetElementName - The target element name to find paths to
- * @param {number} maxPaths - Maximum number of paths to find
- * @returns {Promise<Object>} - The pathfinding results
+ * api untuk BFS
+ * @param {string} targetElementName - nama target elemen
+ * @param {number} maxPaths - maks path yang dicari
+ * @returns {Promise<Object>} - results
  */
 export async function fetchBFSPaths(targetElementName, maxPaths) {
-  console.log('Fetching BFS paths for:', targetElementName, 'with max paths:', maxPaths);
   try {
     const response = await fetch(`${API_BASE_URL}/api/pathfinding/bfs`, {
       method: 'POST',
@@ -28,7 +27,6 @@ export async function fetchBFSPaths(targetElementName, maxPaths) {
     }
 
     const data = await response.json();
-    console.log('BFS paths fetched successfully:', data.results);
     return data.results;
   } catch (error) {
     console.error('Error fetching BFS paths:', error);
@@ -38,7 +36,6 @@ export async function fetchBFSPaths(targetElementName, maxPaths) {
 
 
 export async function fetchDFSPaths(targetElementName, maxPaths) {
-  console.log('Fetching DFS paths for:', targetElementName, 'with max paths:', maxPaths);
   try {
     const response = await fetch(`${API_BASE_URL}/api/pathfinding/dfs-single`, {
       method: 'POST',
@@ -57,7 +54,6 @@ export async function fetchDFSPaths(targetElementName, maxPaths) {
     }
 
     const data = await response.json();
-    console.log('DFS paths fetched successfully:', data.results);
     return data.results;
   } catch (error) {
     console.error('Error fetching DFS paths:', error);
@@ -67,7 +63,6 @@ export async function fetchDFSPaths(targetElementName, maxPaths) {
 
 
 export async function fetchDFSMultiplePaths(targetElementName, maxPaths) {
-  console.log('Fetching DFS multiple paths for:', targetElementName, 'with max paths:', maxPaths);
   try {
     const response = await fetch(`${API_BASE_URL}/api/pathfinding/dfs-multiple`, {
       method: 'POST',
@@ -86,7 +81,6 @@ export async function fetchDFSMultiplePaths(targetElementName, maxPaths) {
     }
 
     const data = await response.json();
-    console.log('DFS multiple paths fetched successfully:', data.results);
     return data.results;
   } catch (error) {
     console.error('Error fetching DFS multiple paths:', error);

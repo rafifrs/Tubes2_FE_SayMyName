@@ -11,6 +11,13 @@ export default function RecipeCountInput({ onChange, onValidityChange, isEnabled
     onValidityChange(isEnabled ? count > 0 : true);
   }, [count, isEnabled, onValidityChange]);
 
+  useEffect(() => {
+    if (!isEnabled) {
+      setCount(1);
+    }
+  }, [isEnabled]);
+  
+
   const handleInputChange = useCallback((e) => {
     const value = e.target.value;
     setCount(value);

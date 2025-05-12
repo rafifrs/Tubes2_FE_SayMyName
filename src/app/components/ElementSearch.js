@@ -11,19 +11,17 @@ export default function ElementSearch({ onElementSelect, onValidityChange }) {
   const alljson = require('../../../elements_filtered.json');
   const elements = alljson.map(element => element.name);
 
-  // Filter elements berdasarkan searhh query
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredElements([]);
     } else {
       const filtered = elements.filter(element => 
         element.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 10); // Limit to 10 results for performance
+      ).slice(0, 10);
       setFilteredElements(filtered);
     }
   }, [searchQuery]);
 
-  // Handle perubahan pada selectedElement
   useEffect(() => {
     onValidityChange(!!selectedElement);
   }, [selectedElement, onValidityChange]);

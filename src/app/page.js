@@ -1,4 +1,3 @@
-// app/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,8 +14,13 @@ import MyTree from './components/Tree';
 
 export default function Home() {
   const [hasSearched, setHasSearched] = useState(false);
+  const [executionTimeDalamMs, setExecutionTimeDalamMs] = useState(0);
+  const [nodesVisited, setNodesVisited] = useState(0);
 
-  // State for search parameters
+  const [showRecipeCount, setShowRecipeCount] = useState(false);
+  const [results, setResults] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [searchParams, setSearchParams] = useState({
     method: '',
     mode: '',
@@ -24,7 +28,6 @@ export default function Home() {
     targetElement: ''
   });
 
-  // State for form validity
   const [validity, setValidity] = useState({
     targetElement: false,
     method: false,
@@ -32,33 +35,25 @@ export default function Home() {
     count: true,
   });
 
-  // State for enabling recipe count selector
-  const [showRecipeCount, setShowRecipeCount] = useState(false);
-
-  // State for results and loading
-  const [results, setResults] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // State for available elements (would come from API in real app)
-  const [elements, setElements] = useState([]);
-
-  // Check if form is valid
   const isFormValid = validity.targetElement && validity.method && validity.mode && validity.count;
 
   const handleSearchUsingAPI  = async (method, count, mode) => {
-    console.log('KEPANGGGIL GA SI');
     setIsLoading(true);
     setError(null);
-    console.log('Searching for recipes with params:', searchParams);
-    console.log('Method:', method);
-    console.log('Count:', count);
-    console.log('Mode:', mode);
+
+    const startTime = performance.now();
+
     if (method === 'bfs') {
-      console.log('BFS called');
       try {
         const response = await fetchBFSPaths(searchParams.targetElement, searchParams.count);
-        // console.log('API responseuk:', response?.Results?.[0]?.Path || []);
+        const endTime = performance.now();
+        let visited = 0;
+        for (let i = 0; i < response.Results.length; i++) {
+          visited += response.Results[i].NodesVisited || 0;
+        }
+        setNodesVisited(visited);
+        setExecutionTimeDalamMs(endTime - startTime);
         setResults(response);
         setHasSearched(true); 
       } catch (err) {
@@ -70,10 +65,13 @@ export default function Home() {
     }
     else if (method === 'dfs') {
       if (count === 1 || mode === 'single' || (mode === 'multiple' && count === 1)) {
-        console.log('DFS single called');
         try {
           const response = await fetchDFSPaths(searchParams.targetElement, searchParams.count);
-          console.log('API responseuk:', response?.Path || []);
+          const endTime = performance.now();
+          setExecutionTimeDalamMs(endTime - startTime);
+          let visited = 0;
+          visited += response.NodesVisited || 0;
+          setNodesVisited(visited);
           setResults(response);
           setHasSearched(true); 
         } catch (err) {
@@ -84,10 +82,15 @@ export default function Home() {
         }
       }
       else if (count > 1 || mode === 'multiple') {
-        console.log('DFS multiple called');
         try {
           const response = await fetchDFSMultiplePaths(searchParams.targetElement, searchParams.count);
-          console.log('API responseuk:', response || []);
+          const endTime = performance.now();
+          setExecutionTimeDalamMs(endTime - startTime);
+          let visited = 0;
+          for (let i = 0; i < response.length; i++) {
+            visited += response[i].NodesVisited || 0;
+          }
+          setNodesVisited(visited);
           setResults(response);
           setHasSearched(true); 
         } catch (err) {
@@ -101,7 +104,6 @@ export default function Home() {
 
   }
 
-  // Update form parameters
   const handleTargetElementChange = useCallback((element) => {
     setSearchParams((prev) => ({ ...prev, targetElement: element }));
   }, []);
@@ -111,14 +113,20 @@ export default function Home() {
   }, []);
 
   const handleModeChange = useCallback((mode) => {
-    setSearchParams((prev) => ({ ...prev, mode }));
-  }, []);
+    setSearchParams((prev) => ({
+      ...prev,
+      mode,
+      count: mode === 'single' ? 1 : prev.count,
+    }));
+    if (mode === 'single') {
+      setValidity((prev) => ({ ...prev, count: true }));
+    }
+  }, []);  
 
   const handleCountChange = useCallback((count) => {
     setSearchParams((prev) => ({ ...prev, count: Number(count) }));
   }, []);
 
-  // Update validity states
   const handleTargetElementValidityChange = useCallback((isValid) => {
     setValidity((prev) => ({ ...prev, targetElement: isValid }));
   }, []);
@@ -137,22 +145,19 @@ export default function Home() {
 
   useEffect(() => {
     setHasSearched(false);
-    setResults(null); // Optional: clear previous results
+    setResults(null);
   }, [searchParams.method, searchParams.count, searchParams.targetElement]);
   
-
   return (
     <div className="min-h-screen bg-[#1b001c] text-white">
       <div className="mx-auto container px-4 py-8">
-        {/* Header with logo */}
+
         <div className="flex items-center mb-8 justify-center text-center">
           <img src="/logo.webp" alt="Logo" className="h-12 mr-4" />
           <h1 className="text-2xl font-bold">Little Alchemy 2 Solver</h1>
         </div>
 
-        {/* Main grid layout */}
         <div className="grid grid-cols-12 gap-4">
-          {/* Row 1: Controls */}
           <div className="col-span-3 h-16">
             <ElementSearch 
               onElementSelect={handleTargetElementChange}
@@ -170,6 +175,7 @@ export default function Home() {
               onChange={handleModeChange}
               onValidityChange={handleModeValidityChange}
               onMultipleSelected={setShowRecipeCount}
+              onCountChange={handleCountChange} 
             />
           </div>
           <div className="col-span-2 h-16">
@@ -187,10 +193,12 @@ export default function Home() {
           />
           </div>
 
-          {/* Row 2-3: Results dengan Tabs */}
           <div className="col-span-8 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
             {hasSearched && results && searchParams.method === 'bfs' && searchParams.count === 1 && (
               <MyTree result={results?.Results?.[0]?.Path || []} />
+            )}
+            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count > 1 && (
+              <TabTreeContainer trees={results} method={searchParams.method} />
             )}
             {hasSearched && results && searchParams.method === 'dfs' && searchParams.count === 1 && (
               <MyTree result={results?.Path || []}/>
@@ -198,16 +206,16 @@ export default function Home() {
             {hasSearched && results && searchParams.method === 'dfs' && searchParams.count > 1 && (
               <TabTreeContainer trees={results} method={searchParams.method} />
             )}
-            {hasSearched && results && searchParams.method === 'bfs' && searchParams.count > 1 && (
-              <TabTreeContainer trees={results} method={searchParams.method} />
-            )}
           </div>
 
           <div className="col-span-4 row-span-2 bg-[#260026] bg-opacity-30 rounded-lg border-2 border-[#c426a4] h-[calc(100vh-230px)]">
-          {results && (
+          {hasSearched && results && (
             <ResultsDisplay 
               results={results}
               isLoading={isLoading}
+              method = {searchParams.method}
+              executionTime={executionTimeDalamMs}
+              nodesVisited={nodesVisited}
             />
           )}
           </div>

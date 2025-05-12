@@ -3,15 +3,21 @@ import Tree from "react-d3-tree";
 import { convertResultToTree } from "./../helper/converter";
 
 const MyTree = ({ result } ) => {
-  // console.log('ini result di MyTree', result);
-  console.log("MyTree props:", result);
+
+  if (!Array.isArray(result) || result.length === 0) {
+    return (
+      <div className="text-white flex items-center justify-center h-full">
+        No Path Found
+      </div>
+    );
+  }
+
   let resultReversed = result.slice().reverse();
 
   const treeData = convertResultToTree(resultReversed);
   const treeContainer = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  // Update dimensions when component mounts or window resizes
   useEffect(() => {
     const updateDimensions = () => {
       if (treeContainer.current) {
@@ -28,12 +34,11 @@ const MyTree = ({ result } ) => {
     };
   }, []);
 
-  // Enhance trackpad interaction
+  // trackpad interaction
   useEffect(() => {
     if (treeContainer.current) {
-      // Prevent default browser wheel behavior to avoid conflicting with tree panning/zooming
       const preventDefaultWheel = (e) => {
-        if (e.ctrlKey) { // Most trackpads send ctrl+wheel for pinch zoom
+        if (e.ctrlKey) {
           e.preventDefault();
         }
       };
@@ -48,7 +53,6 @@ const MyTree = ({ result } ) => {
     }
   }, []);
 
-  // Custom styling for nodes and links
   const nodeStyles = {
     node: {
       circle: {
@@ -63,7 +67,6 @@ const MyTree = ({ result } ) => {
     },
   };
 
-  // Custom node element to apply the styling
   const renderCustomNodeElement = ({ nodeDatum }) => (
     <g>
       <circle 
@@ -73,10 +76,10 @@ const MyTree = ({ result } ) => {
         strokeWidth={2}
       />
       <text
-        fill="white"        // warna teks (oranye)
+        fill="white" 
         stroke="none"
         textAnchor="middle"
-        dy={-30}               // posisi vertikal teks di bawah lingkaran
+        dy={-30}   
         fontSize="14"
         fontWeight="bold"
       >
@@ -84,7 +87,6 @@ const MyTree = ({ result } ) => {
       </text>
     </g>
   );
-  
   
   return (
     <div 
@@ -94,19 +96,19 @@ const MyTree = ({ result } ) => {
     >
       {dimensions.width > 0 && (
         <Tree
-        data={treeData}
-        translate={{ x: dimensions.width / 2, y: 100 }}
-        zoom={0.8}
-        zoomable={true}
-        draggable={true}
-        scaleExtent={{ min: 0.1, max: 2 }}
-        separation={{ siblings: 1.4, nonSiblings: 2.2 }} 
-        pathFunc="diagonal"
-        orientation="vertical"
-        nodeSize={{ x: 100, y: 100 }}
-        collapsible={false}
-        renderCustomNodeElement={renderCustomNodeElement}
-        shouldRenderLabel={true}
+          data={treeData}
+          translate={{ x: dimensions.width / 2, y: 100 }}
+          zoom={0.8}
+          zoomable={true}
+          draggable={true}
+          scaleExtent={{ min: 0.1, max: 2 }}
+          separation={{ siblings: 1.4, nonSiblings: 2.2 }} 
+          pathFunc="diagonal"
+          orientation="vertical"
+          nodeSize={{ x: 100, y: 100 }}
+          collapsible={false}
+          renderCustomNodeElement={renderCustomNodeElement}
+          shouldRenderLabel={true}
       />
       
       
@@ -121,7 +123,7 @@ const MyTree = ({ result } ) => {
           stroke-width: ${nodeStyles.link.strokeWidth} !important;
         }
         .rd3t-label {
-          fill: white !important;  /* warna teks */
+          fill: white !important;
           font-weight: bold;
           font-size: 14px;
         }

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-export default function ResultsDisplay({ results, isLoading }) {
+export default function ResultsDisplay({ results, isLoading, method, executionTime, nodesVisited}) {
+  const isBFS = method === "bfs";
+
   if (!results && !isLoading) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center text-purple-300">
@@ -33,17 +35,23 @@ export default function ResultsDisplay({ results, isLoading }) {
           <div className="gap-4">
             <div className="bg-[#260026] bg-opacity-50 p-4 rounded-lg text-center mt-5">
               <p className="text-purple-300 text-sm">Execution Time</p>
-              <p className="text-white text-xl font-bold"> ms</p>
+              <p className="text-white text-xl font-bold">{executionTime?.toFixed(2)} ms</p>
             </div>
             
             <div className="bg-[#260026] bg-opacity-50 p-4 rounded-lg text-center mt-5">
               <p className="text-purple-300 text-sm">Nodes Visited</p>
-              {/* <p className="text-white text-xl font-bold">{results.Results[0].NodesVisited.toLocaleString()}</p> */}
+              <p className="text-white text-xl font-bold">{nodesVisited}</p>
             </div>
             
             <div className="bg-[#260026] bg-opacity-50 p-4 rounded-lg text-center mt-5">
               <p className="text-purple-300 text-sm">Recipes Found</p>
-              <p className="text-white text-xl font-bold">{results.length || 0}</p>
+              
+              <p className="text-white text-xl font-bold">
+              {isBFS
+              ? `${results?.Results?.length || 0}`
+              : `${Array.isArray(results) ? results.length : results?.Path ? 1 : 0}`}
+              </p>
+
             </div>
           </div>
         </div>

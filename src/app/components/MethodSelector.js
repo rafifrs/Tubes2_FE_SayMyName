@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 
 export default function MethodSelector({ onChange, onValidityChange }) {
   const [method, setMethod] = useState('');
-  const methods = ['BFS', 'DFS', 'Bidirectional'];
+  const methods = ['BFS', 'DFS'];
 
   useEffect(() => {
     onValidityChange(!!method);
