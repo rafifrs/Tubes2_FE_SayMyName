@@ -3,16 +3,8 @@ import Tree from "react-d3-tree";
 import { convertResultToTree } from "./../helper/converter";
 
 const MyTree = ({ result, elementsData }) => {
-  if (!Array.isArray(result) || result.length === 0) {
-    return <div className="text-white flex items-center justify-center h-full">No Path Found</div>;
-  }
-
-  let resultReversed = result.slice().reverse();
-
-  const treeData = convertResultToTree(resultReversed);
   const treeContainer = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
   useEffect(() => {
     const updateDimensions = () => {
       if (treeContainer.current) {
@@ -46,6 +38,14 @@ const MyTree = ({ result, elementsData }) => {
       };
     }
   }, []);
+
+  if (!Array.isArray(result) || result.length === 0) {
+    return <div className="text-white flex items-center justify-center h-full">No Path Found</div>;
+  }
+
+  let resultReversed = result.slice().reverse();
+
+  const treeData = convertResultToTree(resultReversed);
 
   const renderCustomNodeElement = ({ nodeDatum }) => {
     const elementInfo = elementsData?.find((el) => el.name === nodeDatum.name);
