@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Tubes2_SayMyName
+  
+</br>
+
+<H2 align="center">Pemanfaatan Algoritma BFS dan DFS dalam Pencarian Recipe pada Permainan Little Alchemy 2</p>
+
+
+##  Authors: Kelompok XX - SayMyName
+
+<div align="center">
+
+<table border="1" cellspacing="0" cellpadding="8"> 
+  <tr> <th>NIM</th> <th>Nama</th> </tr> 
+  <tr> <td>13523095</td> <td>Rafif Farras</td> </tr> 
+  <tr> <td>13523096</td> <td>Muhammad Edo Raduputu Aprima</td> 
+  </tr> <tr> <td>13523106</td> <td>Athian Nugraha Muarajuang</td> </tr> </table>
+
+</div>
 
 ## Getting Started
 
-First, run the development server:
-
+First, install node_modules
+```bash
+npm install
+```
+run the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Fitur Wajib
 
-## Learn More
+| **No** | **Fitur**         | **Status** |
+|--------|-------------------|------------|
+| 1      | Aplikasi dapat dijalankan |   ✅      |
+| 2      | Aplikasi dapat memperoleh data recipe melalui scraping| ✅      |
+| 3      | Algoritma Depth First Search dan Breadth First Search dapat menemukan recipe elemen dengan benar| ✅      |
+| 4      | Aplikasi dapat menampilkan visualisasi recipe elemen yang dicari sesuai dengan spesifikasi| ✅      |
+| 5      | Aplikasi mengimplementasikan multithreading | ✅      |
+| 6      | Membuat laporan sesuai dengan spesifikasi | ✅     |
 
-To learn more about Next.js, take a look at the following resources:
+### Fitur Bonus
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| **No** | **Fitur**                        | **Status** |
+|--------|----------------------------------|------------|
+| 1      | Membuat bonus video dan diunggah pada Youtube                            | ✅         |
+| 2      | Membuat bonus algoritma pencarian Bidirectional| ❌         |
+| 3      | Membuat bonus Live Update| ❌         |
+| 4      | Aplikasi di-containerize dengan Docker| ❌         |
+| 5      | Aplikasi di-deploy dan dapat diakses melalui internet| ❌         |
