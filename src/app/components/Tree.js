@@ -2,14 +2,9 @@ import React, { useRef, useEffect, useState } from "react";
 import Tree from "react-d3-tree";
 import { convertResultToTree } from "./../helper/converter";
 
-const MyTree = ({ result } ) => {
-
+const MyTree = ({ result, elementsData }) => {
   if (!Array.isArray(result) || result.length === 0) {
-    return (
-      <div className="text-white flex items-center justify-center h-full">
-        No Path Found
-      </div>
-    );
+    return <div className="text-white flex items-center justify-center h-full">No Path Found</div>;
   }
 
   let resultReversed = result.slice().reverse();
@@ -28,7 +23,7 @@ const MyTree = ({ result } ) => {
 
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    
+
     return () => {
       window.removeEventListener("resize", updateDimensions);
     };
@@ -42,58 +37,50 @@ const MyTree = ({ result } ) => {
           e.preventDefault();
         }
       };
-      
-      treeContainer.current.addEventListener('wheel', preventDefaultWheel, { passive: false });
-      
+
+      const currentTreeContainer = treeContainer.current;
+      currentTreeContainer.addEventListener("wheel", preventDefaultWheel, { passive: false });
+
       return () => {
-        if (treeContainer.current) {
-          treeContainer.current.removeEventListener('wheel', preventDefaultWheel);
+        if (currentTreeContainer) {
+          currentTreeContainer.removeEventListener("wheel", preventDefaultWheel);
         }
       };
     }
   }, []);
 
-  const nodeStyles = {
-    node: {
-      circle: {
-        fill: "#c426a4",
-        stroke: "white",
-        strokeWidth: 1,
-      },
-    },
-    link: {
-      stroke: "#c426a4",
-      strokeWidth: 2,
-    },
+  const renderCustomNodeElement = ({ nodeDatum }) => {
+    const elementInfo = elementsData?.find((el) => el.name === nodeDatum.name);
+
+    const imageName = nodeDatum.name + ".svg";
+    const imagePath = `/img/${imageName}`;
+    const fallbackImagePath = "/img/default.svg";
+
+    const imageSize = 40;
+    const textOffsetY = imageSize / 2 + 15;
+
+    return (
+      <g>
+        <image
+          href={imagePath}
+          x={-imageSize / 2}
+          y={-imageSize / 2}
+          width={imageSize}
+          height={imageSize}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.href = fallbackImagePath;
+          }}
+        />
+        <text fill="white" stroke="none" textAnchor="middle" dy={textOffsetY} fontSize="12" fontWeight="bold">
+          {nodeDatum.name}
+        </text>
+      </g>
+    );
   };
 
-  const renderCustomNodeElement = ({ nodeDatum }) => (
-    <g>
-      <circle 
-        r={20} 
-        fill="#c426a4" 
-        stroke="#c426a4"
-        strokeWidth={2}
-      />
-      <text
-        fill="white" 
-        stroke="none"
-        textAnchor="middle"
-        dy={-30}   
-        fontSize="14"
-        fontWeight="bold"
-      >
-        {nodeDatum.name}
-      </text>
-    </g>
-  );
-  
   return (
-    <div 
-      ref={treeContainer} 
-      className="w-full h-full cursor-move"
-      style={{ touchAction: "manipulation" }}
-    >
+    <div ref={treeContainer} className="w-full h-full cursor-move" style={{ touchAction: "manipulation" }}>
       {dimensions.width > 0 && (
         <Tree
           data={treeData}
@@ -102,25 +89,23 @@ const MyTree = ({ result } ) => {
           zoomable={true}
           draggable={true}
           scaleExtent={{ min: 0.1, max: 2 }}
-          separation={{ siblings: 1.4, nonSiblings: 2.2 }} 
+          separation={{ siblings: 1.4, nonSiblings: 2.2 }}
           pathFunc="diagonal"
           orientation="vertical"
           nodeSize={{ x: 100, y: 100 }}
           collapsible={false}
           renderCustomNodeElement={renderCustomNodeElement}
           shouldRenderLabel={true}
-      />
-      
-      
+        />
       )}
       <style jsx>{`
         :global(.custom-link) {
-          stroke: ${nodeStyles.link.stroke};
-          stroke-width: ${nodeStyles.link.strokeWidth};
+          stroke: #c426a4 !important;
+          stroke-width: 2px !important;
         }
         :global(.rd3t-link) {
-          stroke: ${nodeStyles.link.stroke} !important;
-          stroke-width: ${nodeStyles.link.strokeWidth} !important;
+          stroke: #c426a4 !important;
+          stroke-width: 2px !important;
         }
         .rd3t-label {
           fill: white !important;
