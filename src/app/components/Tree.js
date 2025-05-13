@@ -2,22 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import Tree from "react-d3-tree";
 import { convertResultToTree } from "./../helper/converter";
 
-const MyTree = ({ result } ) => {
-
-  if (!Array.isArray(result) || result.length === 0) {
-    return (
-      <div className="text-white flex items-center justify-center h-full">
-        No Path Found
-      </div>
-    );
-  }
-
-  let resultReversed = result.slice().reverse();
-
-  const treeData = convertResultToTree(resultReversed);
+const MyTree = ({ result }) => {
   const treeContainer = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
+  
   useEffect(() => {
     const updateDimensions = () => {
       if (treeContainer.current) {
@@ -25,16 +13,14 @@ const MyTree = ({ result } ) => {
         setDimensions({ width, height });
       }
     };
-
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    
     return () => {
       window.removeEventListener("resize", updateDimensions);
     };
   }, []);
-
-  // trackpad interaction
+  
+  // trackpad
   useEffect(() => {
     if (treeContainer.current) {
       const preventDefaultWheel = (e) => {
@@ -42,9 +28,7 @@ const MyTree = ({ result } ) => {
           e.preventDefault();
         }
       };
-      
       treeContainer.current.addEventListener('wheel', preventDefaultWheel, { passive: false });
-      
       return () => {
         if (treeContainer.current) {
           treeContainer.current.removeEventListener('wheel', preventDefaultWheel);
@@ -53,6 +37,17 @@ const MyTree = ({ result } ) => {
     }
   }, []);
 
+  if (!Array.isArray(result) || result.length === 0) {
+    return (
+      <div className="text-white flex items-center justify-center h-full">
+        No Path Found
+      </div>
+    );
+  }
+  
+  let resultReversed = result.slice().reverse();
+  const treeData = convertResultToTree(resultReversed);
+  
   const nodeStyles = {
     node: {
       circle: {
@@ -66,20 +61,20 @@ const MyTree = ({ result } ) => {
       strokeWidth: 2,
     },
   };
-
+  
   const renderCustomNodeElement = ({ nodeDatum }) => (
     <g>
-      <circle 
-        r={20} 
-        fill="#c426a4" 
+      <circle
+        r={20}
+        fill="#c426a4"
         stroke="#c426a4"
         strokeWidth={2}
       />
       <text
-        fill="white" 
+        fill="white"
         stroke="none"
         textAnchor="middle"
-        dy={-30}   
+        dy={-30}
         fontSize="14"
         fontWeight="bold"
       >
@@ -87,10 +82,10 @@ const MyTree = ({ result } ) => {
       </text>
     </g>
   );
-  
+
   return (
-    <div 
-      ref={treeContainer} 
+    <div
+      ref={treeContainer}
       className="w-full h-full cursor-move"
       style={{ touchAction: "manipulation" }}
     >
@@ -102,16 +97,14 @@ const MyTree = ({ result } ) => {
           zoomable={true}
           draggable={true}
           scaleExtent={{ min: 0.1, max: 2 }}
-          separation={{ siblings: 1.4, nonSiblings: 2.2 }} 
+          separation={{ siblings: 1.4, nonSiblings: 2.2 }}
           pathFunc="diagonal"
           orientation="vertical"
           nodeSize={{ x: 100, y: 100 }}
           collapsible={false}
           renderCustomNodeElement={renderCustomNodeElement}
           shouldRenderLabel={true}
-      />
-      
-      
+        />
       )}
       <style jsx>{`
         :global(.custom-link) {
