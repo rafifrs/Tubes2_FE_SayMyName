@@ -52,5 +52,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | 1      | Membuat bonus video dan diunggah pada Youtube                            | ✅         |
 | 2      | Membuat bonus algoritma pencarian Bidirectional| ❌         |
 | 3      | Membuat bonus Live Update| ❌         |
-| 4      | Aplikasi di-containerize dengan Docker| ❌         |
+| 4      | Aplikasi di-containerize dengan Docker| ✅         |
 | 5      | Aplikasi di-deploy dan dapat diakses melalui internet| ❌         |
