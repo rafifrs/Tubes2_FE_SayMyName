@@ -20,16 +20,14 @@ const MyTree = ({ result, elementsData }) => {
         setDimensions({ width, height });
       }
     };
-
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-
     return () => {
       window.removeEventListener("resize", updateDimensions);
     };
   }, []);
 
-  // trackpad interaction
+  // trackpad
   useEffect(() => {
     if (treeContainer.current) {
       const preventDefaultWheel = (e) => {

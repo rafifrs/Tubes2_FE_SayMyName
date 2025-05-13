@@ -50,8 +50,10 @@ export default function Home() {
         const response = await fetchBFSPaths(searchParams.targetElement, searchParams.count);
         const endTime = performance.now();
         let visited = 0;
-        for (let i = 0; i < response.Results.length; i++) {
-          visited += response.Results[i].NodesVisited || 0;
+        if (response && response.Results) {
+          for (let i = 0; i < response.Results.length; i++) {
+            visited += response.Results[i].NodesVisited || 0;
+          }
         }
         setNodesVisited(visited);
         setExecutionTimeDalamMs(endTime - startTime);
@@ -70,7 +72,7 @@ export default function Home() {
           const endTime = performance.now();
           setExecutionTimeDalamMs(endTime - startTime);
           let visited = 0;
-          visited += response.NodesVisited || 0;
+          visited += response && response.NodesVisited ? response.NodesVisited : 0;
           setNodesVisited(visited);
           setResults(response);
           setHasSearched(true);
@@ -86,8 +88,10 @@ export default function Home() {
           const endTime = performance.now();
           setExecutionTimeDalamMs(endTime - startTime);
           let visited = 0;
-          for (let i = 0; i < response.length; i++) {
-            visited += response[i].NodesVisited || 0;
+          if (response && response.length) {
+            for (let i = 0; i < response.length; i++) {
+              visited += response[i].NodesVisited || 0;
+            }
           }
           setNodesVisited(visited);
           setResults(response);
